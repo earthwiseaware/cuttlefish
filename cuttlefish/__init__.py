@@ -18,16 +18,16 @@ def init_workbook(sheet_names):
 
 @click.command()
 @click.option('-m', '--method',  type=click.Choice(['create', 'digest']), required=True)
-@click.option('-w', '--workbook', required=True, help='path to workbook')
-@click.option('-f', '--folder', default='', help='path to folder for json')
-def xlsform(method, workbook, folder):
+@click.option('-w', '--workbook_file', required=True, help='path to workbook')
+@click.option('-f', '--folder', required=True, help='path to json folder')
+def xlsform(method, workbook_file, folder):
     helpers = [
         SurveyHelper(),
         ChoicesHelper(),
         SettingsHelper()
     ]
     if method == 'digest':
-        load_workbook(filename=workbook)
+        workbook = load_workbook(filename=workbook_file)
         for helper in helpers:
             helper.read_sheet(workbook)
             helper.write_json(folder)
@@ -36,4 +36,4 @@ def xlsform(method, workbook, folder):
         for helper in helpers:
             helper.read_json(folder)
             helper.write_sheet(workbook)
-        workbook.save(filename=workbook)
+        workbook.save(filename=workbook_file)

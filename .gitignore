@@ -1,1 +1,3 @@
 *.pyc
+build/*
+cuttlefish.egg-info/*

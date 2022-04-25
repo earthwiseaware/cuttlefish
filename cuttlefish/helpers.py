@@ -82,7 +82,7 @@ def read_survey(sheet):
     columns = get_columns(sheet)
     for row in sheet.iter_rows(min_row=2):
         element = {
-            columns[i]: cell.value.strip()
+            columns[i]: cell.value
             for i, cell in enumerate(row)
             if cell.value
         }
@@ -129,7 +129,7 @@ def read_choices(sheet):
         key = row[columns['list_name']].value.strip()
         if key not in choices:
             choices[key] = {}
-        choices[key][row[columns['name']].value.strip()] = row[columns['label']].value.strip()
+        choices[key][row[columns['name']].value] = row[columns['label']].value
     return choices
 
 class ChoicesHelper(SheetHelper):
@@ -146,7 +146,6 @@ def write_settings(sheet, settings):
 def read_settings(sheet):
     settings = {}
     for column in sheet.columns:
-        print(column[0])
         if not column[0].value or not column[0].value.strip():
             continue
         key = column[0].value.strip()
