@@ -1,4 +1,4 @@
-# cuttlefish
+# xlsform
 Excel sheets are hard to track. They count as binary files in GIT. This repo gives you a tool for building XLSForms from JSON and digesting XLSForms into JSON so that you can track them properly. 
 
 ## Installing
