@@ -3,9 +3,9 @@ import unittest
 from openpyxl import Workbook
 
 from ..helpers import (
-    get_columns,
+    write_choices,
     read_choices,
-    write_choices
+    get_columns
 )
 
 class TestWriteChoices(unittest.TestCase):

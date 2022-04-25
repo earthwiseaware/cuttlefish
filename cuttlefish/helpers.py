@@ -124,7 +124,7 @@ def read_choices(sheet):
         value: key for key, value in get_columns(sheet).items()
     }
     for row in sheet.iter_rows(min_row=2):
-        if not row[columns['list_name']].value:
+        if not row[columns['list_name']].value or not row[columns['list_name']].value.strip():
             continue
         key = row[columns['list_name']].value.strip()
         if key not in choices:
@@ -146,10 +146,13 @@ def write_settings(sheet, settings):
 def read_settings(sheet):
     settings = {}
     for column in sheet.columns:
-        key = column[0].strip()
+        print(column[0])
+        if not column[0].value or not column[0].value.strip():
+            continue
+        key = column[0].value.strip()
         if not key:
             continue
-        settings[key] = next(e.strip() for e in column[1:] if e.strip())
+        settings[key] = next(e.value.strip() for e in column[1:] if e.value and e.value.strip())
     return settings
 
 class SettingsHelper(SheetHelper):

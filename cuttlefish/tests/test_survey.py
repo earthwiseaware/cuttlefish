@@ -9,7 +9,7 @@ from ..helpers import (
 )
 
 class TestWriteSurvey(unittest.TestCase):
-    def test_basic_add(self):
+    def test_basic(self):
         survey = [
             {
                 'type': 'select_one yes_no',
