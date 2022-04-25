@@ -10,7 +10,8 @@ setup(
     packages=find_packages(include=['cuttlefish', 'cuttlefish*']),
     install_requires=[
         'openpyxl',
-        'click'
+        'click',
+        'pytest'
     ],
     entry_points={
         'console_scripts': [

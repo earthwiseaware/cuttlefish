@@ -37,12 +37,18 @@ class SheetHelper(object):
         sheet = self._get_sheet(workbook)
         self.write_func(sheet, self.obj)
 
-def write_survey(sheet, survey, columns={}, next_row=2):
+def get_columns(sheet):
+    return {
+        i: cell.value.strip() for i, cell in enumerate(sheet[1])
+    }
+
+def write_survey(sheet, survey, columns=None, next_row=2):
+    if not columns:
+        columns = {}
     for element in survey:
         for column, value in element.items():
             if column == 'survey':
                 continue
-
             if column not in columns:
                 columns[column] = max(columns.values()) + 1 if columns else 1
                 sheet.cell(row=1, column=columns[column], value=column)
@@ -60,12 +66,16 @@ def write_survey(sheet, survey, columns={}, next_row=2):
         next_row += 1
     return next_row
 
+def add_survey_element(obj, keys, value):
+    if not keys:
+        obj.append(value)
+        return len(obj) - 1
+    return add_survey_element(obj.get(keys[0], []), keys[1:], value)
+
 def read_survey(sheet):
     survey = {}
     current_survey_keys = []
-    columns = {
-        i: cell.value.strip() for i, cell in enumerate(sheet[1])
-    }
+    columns = get_columns(sheet)
     for row in sheet.iter_rows(min_row=2):
         element = {
             columns[i]: cell.value.strip()
@@ -86,12 +96,6 @@ def read_survey(sheet):
             current_survey_keys.append('survey')
     return survey
 
-def add_survey_element(obj, keys, value):
-    if not keys:
-        obj.append(value)
-        return len(obj) - 1
-    return add_survey_element(obj.get(keys[0], []), keys[1:], value)
-
 class SurveyHelper(SheetHelper):
     SHEET_NAME = 'survey'
 
@@ -111,9 +115,7 @@ def write_choices(sheet, choices):
 
 def read_choices(sheet):
     choices = {}
-    columns = {
-        i: cell.value.strip() for i, cell in enumerate(sheet[1])
-    }
+    columns = get_columns(sheet)
     for row in sheet.iter_rows(min_row=2):
         key = row[columns['list_name']].strip()
         if not key:
