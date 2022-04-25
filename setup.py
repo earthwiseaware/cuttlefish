@@ -2,12 +2,12 @@ from importlib.metadata import entry_points
 from setuptools import setup, find_packages
 
 setup(
-    name='cuttlefish',
+    name='xlsform',
     version='0.0.1',
     description='XLSForm Helper Tools',
     author='Marcel Gietzmann-Sanders',
     author_email='marcelsanders96@gmail.com',
-    packages=find_packages(include=['cuttlefish', 'cuttlefish*']),
+    packages=find_packages(include=['xlsform', 'xlsform*']),
     install_requires=[
         'openpyxl',
         'click',
@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'xlsform=cuttlefish.__init__:xlsform'
+            'xlsform=xlsform.__init__:xlsform'
         ]
     }
 )
