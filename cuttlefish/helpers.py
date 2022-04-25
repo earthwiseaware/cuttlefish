@@ -40,6 +40,7 @@ class SheetHelper(object):
 def get_columns(sheet):
     return {
         i: cell.value.strip() for i, cell in enumerate(sheet[1])
+        if cell.value
     }
 
 def write_survey(sheet, survey, columns=None, next_row=2):
@@ -70,22 +71,26 @@ def add_survey_element(obj, keys, value):
     if not keys:
         obj.append(value)
         return len(obj) - 1
-    return add_survey_element(obj.get(keys[0], []), keys[1:], value)
+    key = keys[0]
+    if key == 'survey' and key not in obj:
+        obj[key] = []
+    return add_survey_element(obj[key], keys[1:], value)
 
 def read_survey(sheet):
-    survey = {}
+    survey = []
     current_survey_keys = []
     columns = get_columns(sheet)
     for row in sheet.iter_rows(min_row=2):
         element = {
             columns[i]: cell.value.strip()
             for i, cell in enumerate(row)
+            if cell.value
         }
+        if not element.get('type'):
+            continue
         type_definitions = [
             e.strip() for e in element['type'].split(' ') if e.strip() != ''
         ]
-        if not type_definitions:
-            continue
         if type_definitions[0] == 'end':
             current_survey_keys = current_survey_keys[:-2]
             continue
