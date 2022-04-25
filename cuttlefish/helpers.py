@@ -120,14 +120,16 @@ def write_choices(sheet, choices):
 
 def read_choices(sheet):
     choices = {}
-    columns = get_columns(sheet)
+    columns = {
+        value: key for key, value in get_columns(sheet).items()
+    }
     for row in sheet.iter_rows(min_row=2):
-        key = row[columns['list_name']].strip()
-        if not key:
+        if not row[columns['list_name']].value:
             continue
+        key = row[columns['list_name']].value.strip()
         if key not in choices:
             choices[key] = {}
-        choices[key][row[columns['name']].strip()] = row[columns['label']].strip()
+        choices[key][row[columns['name']].value.strip()] = row[columns['label']].value.strip()
     return choices
 
 class ChoicesHelper(SheetHelper):
