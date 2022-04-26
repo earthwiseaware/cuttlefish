@@ -20,3 +20,6 @@ xlsform -m digest -w examples/example_survey.xlsx -f examples/digested_example_j
 ```bash
 pytest
 ```
+
+## Some Odd Notes
+1. I've found that sometimes you have to save a form locally before the xlsform tool can digest it. I suppose there's some kind of type mismatch that excel resolves upon the first save.

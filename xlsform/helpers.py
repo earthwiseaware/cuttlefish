@@ -151,7 +151,10 @@ def read_settings(sheet):
         key = column[0].value.strip()
         if not key:
             continue
-        settings[key] = next(e.value.strip() for e in column[1:] if e.value and e.value.strip())
+        try:
+            settings[key] = next(e.value.strip() for e in column[1:] if e.value and e.value.strip())
+        except StopIteration:
+            pass
     return settings
 
 class SettingsHelper(SheetHelper):
