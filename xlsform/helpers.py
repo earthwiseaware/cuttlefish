@@ -58,11 +58,11 @@ def write_survey(sheet, survey, columns=None, next_row=2):
         type_definitions = [
             e.strip() for e in element['type'].split(' ') if e.strip() != ''
         ]
-        if type_definitions[0] == 'begin':
+        if type_definitions[0].startswith('begin'):
             next_row = write_survey(sheet, element['survey'], columns, next_row=next_row+1)
             sheet.cell(
                 row=next_row, column=columns['type'], 
-                value=' '.join(['end'] + type_definitions[1:])
+                value=' '.join(['end' + type_definitions[0][5:]] + type_definitions[1:])
             )
         next_row += 1
     return next_row
@@ -91,12 +91,12 @@ def read_survey(sheet):
         type_definitions = [
             e.strip() for e in element['type'].split(' ') if e.strip() != ''
         ]
-        if type_definitions[0] == 'end':
+        if type_definitions[0].startswith('end'):
             current_survey_keys = current_survey_keys[:-2]
             continue
 
         index_of_element = add_survey_element(survey, current_survey_keys, element)
-        if type_definitions[0] == 'begin':
+        if type_definitions[0].startswith('begin'):
             current_survey_keys.append(index_of_element)
             current_survey_keys.append('survey')
     return survey
@@ -107,16 +107,32 @@ class SurveyHelper(SheetHelper):
     def __init__(self):
         super().__init__([], read_survey, write_survey)
 
+def get_extra_keys(choices):
+    for key, options in choices.items():
+        for choice, data in options.items():
+            extra_keys = {
+                key: i for i, key in enumerate(data.keys())
+            }
+            break
+        break
+    return extra_keys
+
 def write_choices(sheet, choices):
     row = 1
+    # write the header row
     sheet.cell(row=row, column=1, value='list_name')
     sheet.cell(row=row, column=2, value='name')
-    sheet.cell(row=row, column=3, value='label')
+    extra_keys = get_extra_keys(choices)
+    for key, i in extra_keys.items():
+        sheet.cell(row=row, column=i+3, value=key)
+    # write the data rows
     for key, options in choices.items():
-        for choice, label in options.items():
+        for choice, data in options.items():
             row += 1
-            for i, value in enumerate([key, choice, label]):
+            for i, value in enumerate([key, choice]):
                 sheet.cell(row=row, column=i+1, value=value)
+            for extra_key, i in extra_keys.items():
+                sheet.cell(row=row, column=i+3, value=data[extra_key])
 
 def read_choices(sheet):
     choices = {}
@@ -129,7 +145,11 @@ def read_choices(sheet):
         key = row[columns['list_name']].value.strip()
         if key not in choices:
             choices[key] = {}
-        choices[key][row[columns['name']].value] = row[columns['label']].value
+        choices[key][row[columns['name']].value] = {
+            col_name: row[col_num].value if row[col_num].value else ''
+            for col_name, col_num in columns.items()
+            if col_name not in ['list_name', 'name']
+        }
     return choices
 
 class ChoicesHelper(SheetHelper):
