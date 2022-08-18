@@ -58,11 +58,11 @@ def write_survey(sheet, survey, columns=None, next_row=2):
         type_definitions = [
             e.strip() for e in element['type'].split(' ') if e.strip() != ''
         ]
-        if type_definitions[0] == 'begin':
+        if type_definitions[0].startswith('begin'):
             next_row = write_survey(sheet, element['survey'], columns, next_row=next_row+1)
             sheet.cell(
                 row=next_row, column=columns['type'], 
-                value=' '.join(['end'] + type_definitions[1:])
+                value=' '.join(['end' + type_definitions[0][5:]] + type_definitions[1:])
             )
         next_row += 1
     return next_row
@@ -91,12 +91,12 @@ def read_survey(sheet):
         type_definitions = [
             e.strip() for e in element['type'].split(' ') if e.strip() != ''
         ]
-        if type_definitions[0] == 'end':
+        if type_definitions[0].startswith('end'):
             current_survey_keys = current_survey_keys[:-2]
             continue
 
         index_of_element = add_survey_element(survey, current_survey_keys, element)
-        if type_definitions[0] == 'begin':
+        if type_definitions[0].startswith('begin'):
             current_survey_keys.append(index_of_element)
             current_survey_keys.append('survey')
     return survey

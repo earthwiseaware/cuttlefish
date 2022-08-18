@@ -81,6 +81,56 @@ class TestWriteSurvey(unittest.TestCase):
             for j, cell in enumerate(row):
                 assert cell.value == expected_rows[i].get(columns[j], None)
 
+    def test_single_recursion_with_underscore(self):
+        survey = [
+            {
+                'type': 'select_one yes_no',
+                'label': 'Are you a lizard?',
+                'name': 'is_lizard'
+            },
+            {
+                'type': 'begin_group',
+                'label': 'A Group!',
+                'name': 'group',
+                'survey': [
+                    {
+                        'type': 'select_multiple degree',
+                        'label': 'How crazy are your plans?',
+                        'name': 'insanity',
+                        'hint': 'Honesty is essential'
+                    }
+                ]
+            }
+        ]
+        expected_rows = [
+            {
+                'type': 'select_one yes_no',
+                'label': 'Are you a lizard?',
+                'name': 'is_lizard'
+            },
+            {
+                'type': 'begin_group',
+                'label': 'A Group!',
+                'name': 'group'
+            },
+            {
+                'type': 'select_multiple degree',
+                'label': 'How crazy are your plans?',
+                'name': 'insanity',
+                'hint': 'Honesty is essential'
+            },
+            {
+                'type': 'end_group'
+            }
+        ]
+        workbook = Workbook()
+        sheet = workbook.active
+        write_survey(sheet, survey)
+        columns = get_columns(sheet)
+        for i, row in enumerate(sheet.iter_rows(min_row=2)):
+            for j, cell in enumerate(row):
+                assert cell.value == expected_rows[i].get(columns[j], None)
+
     def test_multiple_recursion(self):
         survey = [
             {
@@ -295,6 +345,50 @@ class TestReadSurvey(unittest.TestCase):
             },
             {
                 'type': 'begin group',
+                'name': 'group',
+                'label': 'A Group!',
+                'survey': [
+                    {
+                        'type': 'select_one degree',
+                        'name': 'insanity',
+                        'label': 'How crazy are your plans?'
+                    }
+                ]
+            }
+        ]
+        recursive_equality(survey, expected_survey)
+
+    def test_single_recursion_with_underscore(self):
+        workbook = Workbook()
+        sheet = workbook.active
+        # setup the columns
+        sheet.cell(row=1, column=1, value='type')
+        sheet.cell(row=1, column=2, value='name')
+        sheet.cell(row=1, column=3, value='label')
+        # first data row
+        sheet.cell(row=2, column=1, value='select_one yes_no')
+        sheet.cell(row=2, column=2, value='is_lizard')
+        sheet.cell(row=2, column=3, value='Are you a lizard?')
+        # second data row
+        sheet.cell(row=3, column=1, value='begin_group')
+        sheet.cell(row=3, column=2, value='group')
+        sheet.cell(row=3, column=3, value='A Group!')
+        # third data row
+        sheet.cell(row=4, column=1, value='select_one degree')
+        sheet.cell(row=4, column=2, value='insanity')
+        sheet.cell(row=4, column=3, value='How crazy are your plans?')
+        # fourth data row
+        sheet.cell(row=5, column=1, value='end_group')
+
+        survey = read_survey(sheet)
+        expected_survey = [
+            {
+                'type': 'select_one yes_no',
+                'name': 'is_lizard',
+                'label': 'Are you a lizard?'
+            },
+            {
+                'type': 'begin_group',
                 'name': 'group',
                 'label': 'A Group!',
                 'survey': [
